@@ -1,19 +1,21 @@
 package com.sky.context;
 
+import java.lang.reflect.Type;
+
 public class BaseContext {
 
-    public static ThreadLocal<Long> threadLocal = new ThreadLocal<>();
+    public static ThreadLocal<Object> threadLocal = new ThreadLocal<>();
 
-    public static void setCurrentId(Long id) {
-        threadLocal.set(id);
+    public static void setThreadLocal(Object data) {
+        threadLocal.set(data);
     }
 
-    public static Long getCurrentId() {
-        return threadLocal.get();
+    public static <E> E getThreadLocal(Class<E> type) {
+        E data = (E) threadLocal.get();
+        return data;
     }
 
-    public static void removeCurrentId() {
+    public static void removeThreadLocal() {
         threadLocal.remove();
     }
-
 }
