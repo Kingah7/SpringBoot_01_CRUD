@@ -25,5 +25,5 @@ public interface EmployeeMapper extends BaseMapper<Employee> {
     /**
      * @param employee
      */
-    void changeStatus(Employee employee);
+    void update(Employee employee);
 }

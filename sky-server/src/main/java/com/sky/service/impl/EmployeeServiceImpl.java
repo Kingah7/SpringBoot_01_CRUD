@@ -118,7 +118,23 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
                 .status(status)
                 .id(id)
                 .build();
-        employeeMapper.changeStatus(employee);
+        employeeMapper.update(employee);
+    }
+
+
+    /**
+     * 编辑个人信息
+     *
+     * @param employeeDTO
+     */
+    @Override
+    public void updateInfo(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee);
+
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getThreadLocal(Long.class));
+        employeeMapper.update(employee);
     }
 
 }
