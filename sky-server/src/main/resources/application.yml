@@ -12,7 +12,7 @@ spring:
       url: jdbc:mysql://${sky.datasource.host}:${sky.datasource.port}/${sky.datasource.database}?characterEncoding=utf-8&useSSL=false
       username: ${sky.datasource.username}
       password: ${sky.datasource.password}
-      
+
 
 mybatis:
   #mapper配置文件
@@ -38,3 +38,8 @@ sky:
     admin-ttl: 7200000
     # 设置前端传递过来的令牌名称
     admin-token-name: token
+  alioss:
+    endpoint: ${sky.alioss.endpoint}
+    access-key-id: ${sky.alioss.access-key-id}
+    access-key-secret: ${sky.alioss.access-key-secret}
+    bucket-name: ${sky.alioss.bucket-name}
