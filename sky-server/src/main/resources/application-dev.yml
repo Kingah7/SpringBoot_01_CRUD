@@ -11,3 +11,11 @@ sky:
     access-key-id: LTAI5tSA7muMFHmv58SdzggY
     access-key-secret: 0QI2mnCftxLVz6Y3GfxqUba2QNwsll
     bucket-name: sky-take-out-kingah
+  redis:
+    host: 192.168.32.133
+    port: 6379
+    password: 1234
+    database: 0
+  wechat:
+    appid: wxff276e65f5d12776
+    secret: 54a616b21f2159c9e2b6a7c6da32a62b

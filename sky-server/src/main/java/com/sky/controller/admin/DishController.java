@@ -2,6 +2,7 @@ package com.sky.controller.admin;
 
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.DishService;
@@ -50,13 +51,11 @@ public class DishController {
     @DeleteMapping
     @ApiOperation("删除菜品")
     public Result deleteDish(@RequestParam List<Long> ids) throws InterruptedException {
-        System.out.println(ids);
         dishService.deleteBatch(ids);
         return Result.success();
     }
 
     /**
-     *
      * @param id
      * @return
      */
@@ -69,8 +68,22 @@ public class DishController {
 
     @PutMapping
     @ApiOperation("更新菜品")
-    public Result update(@RequestBody DishDTO dishDTO){
+    public Result update(@RequestBody DishDTO dishDTO) {
         dishService.updateWithFlavor(dishDTO);
+        return Result.success();
+    }
+
+    @GetMapping("/list")
+    @ApiOperation("根据分类id查询菜品")
+    public Result<List<Dish>> getDishByCategoryId(Long categoryId) {
+        List<Dish> list = dishService.selectList(categoryId);
+        return Result.success(list);
+    }
+
+    @PostMapping("/status/{status}")
+    @ApiOperation("起售停售")
+    public Result changeStatus(@PathVariable Long status,Long id) {
+        dishService.changeStatus(status,id);
         return Result.success();
     }
 
