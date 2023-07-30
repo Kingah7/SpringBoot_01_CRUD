@@ -69,7 +69,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public List<Category> getCtgByType(Integer type) {
         LambdaQueryWrapper<Category> lqw = new LambdaQueryWrapper<>();
-        lqw.eq(Category::getType, type);
+        lqw.eq(type != null, Category::getType, type);
         List<Category> list = categoryMapper.selectList(lqw);
         return list;
     }
@@ -126,6 +126,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Override
     public void changeStatus(Integer status, Long id) {
-        categoryMapper.changeStatus(status,id);
+        categoryMapper.changeStatus(status, id);
     }
 }

@@ -11,6 +11,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.List;
+
 @Mapper
 public interface DishMapper extends BaseMapper<Dish> {
     Page<DishVO> queryPage(DishPageQueryDTO dishPageQueryDTO);
@@ -19,4 +21,11 @@ public interface DishMapper extends BaseMapper<Dish> {
 
     @Update("update dish set status = #{status} where id = #{id}")
     void changeStatus(@Param("status") Long status, @Param("id") Long id);
+
+    /**
+     * 动态条件查询菜品
+     * @param dish
+     * @return
+     */
+    List<Dish> list(Dish dish);
 }

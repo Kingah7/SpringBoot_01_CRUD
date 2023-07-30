@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
+import com.sky.constant.RedisKeyConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
@@ -19,15 +20,18 @@ import com.sky.service.DishService;
 import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.sky.constant.MessageConstant.DISH_BE_RELATED_BY_SETMEAL;
 import static com.sky.constant.MessageConstant.DISH_ON_SALE;
+import static com.sky.constant.RedisKeyConstant.DISH_PREFIX;
 import static com.sky.constant.StatusConstant.ENABLE;
 
 @Service
@@ -68,6 +72,8 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
                 dishFlavorMapper.insert(flavors.get(i));
             }
         }
+
+
     }
 
 
@@ -102,6 +108,9 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
             lqw.eq(DishFlavor::getDishId, id);
             dishFlavorMapper.delete(lqw);
         }
+
+
+
     }
 
     /**
@@ -162,6 +171,31 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
     @Override
     public void changeStatus(Long status, Long id) {
-        dishMapper.changeStatus(status,id);
+        dishMapper.changeStatus(status, id);
+
+
+    }
+
+    @Override
+    public List<DishVO> listWithFlavor(Dish dish) {
+
+        List<Dish> dishList = dishMapper.list(dish);
+
+        List<DishVO> dishVOList = new ArrayList<>();
+
+        for (Dish d : dishList) {
+            DishVO dishVO = new DishVO();
+            BeanUtils.copyProperties(d, dishVO);
+
+            //根据菜品id查询对应的口味
+            List<DishFlavor> flavors = dishFlavorMapper.getByDishId(d.getId());
+
+            dishVO.setFlavors(flavors);
+            dishVOList.add(dishVO);
+        }
+
+        return dishVOList;
+
+
     }
 }

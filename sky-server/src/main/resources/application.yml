@@ -17,6 +17,12 @@ spring:
     port: ${sky.redis.port}
     password: ${sky.redis.password}
     host: ${sky.redis.host}
+    lettuce:
+      pool:
+        max-active: 8
+        min-idle: 1
+        max-idle: 8
+        max-wait: 100ms
 
 
 mybatis:
