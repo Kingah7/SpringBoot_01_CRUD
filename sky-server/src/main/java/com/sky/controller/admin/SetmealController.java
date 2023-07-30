@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Set;
 
-import static com.sky.constant.RedisKeyConstant.SETMEAL;
+import static com.sky.constant.RedisKeyConstant.*;
 
 @RestController("adminSetmealController")
 @RequestMapping("/admin/setmeal")
@@ -30,6 +31,8 @@ public class SetmealController {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    String key = CATEGORY_PREFIX + SETMEAL_PREFIX + "*";
 
     /**
      * 分页查询
@@ -49,6 +52,7 @@ public class SetmealController {
     public Result saveWithDish(@RequestBody SetmealDTO setmealDTO) {
 
         setmealService.saveWithDish(setmealDTO);
+        deleteCache();
         return Result.success();
     }
 
@@ -61,7 +65,7 @@ public class SetmealController {
     public Result update(@RequestBody SetmealDTO setmealDTO) {
         log.info("修改套餐:{}", setmealDTO);
         setmealService.update(setmealDTO);
-        stringRedisTemplate.delete(SETMEAL + setmealDTO.getId());
+        deleteCache();
         return Result.success();
     }
 
@@ -82,7 +86,7 @@ public class SetmealController {
     public Result changeStatus(@PathVariable Long status, Long id) {
         log.info("根据id更改套餐状态:{},{}", status, id);
         setmealService.changeStatus(id, status);
-        stringRedisTemplate.delete(SETMEAL + id);
+        deleteCache();
 
         return Result.success();
     }
@@ -95,11 +99,12 @@ public class SetmealController {
     @ApiOperation("批量删除")
     public Result deleteByIds(@RequestParam List<Long> ids) {
         setmealService.deleteByIds(ids);
-
-        for (int i = 0; i < ids.size(); i++) {
-            stringRedisTemplate.delete(SETMEAL + ids.get(i));
-        }
-
+        deleteCache();
         return Result.success();
+    }
+
+    private void deleteCache() {
+        Set<String> keys = stringRedisTemplate.keys(key);
+        stringRedisTemplate.delete(keys);
     }
 }

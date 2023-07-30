@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.List;
 
+import static com.sky.constant.RedisKeyConstant.CATEGORY_PREFIX;
 import static com.sky.constant.RedisKeyConstant.DISH_PREFIX;
 
 @RestController("userDishController")
@@ -35,7 +36,6 @@ public class DishController {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    private static final ObjectMapper mapper = new ObjectMapper();
 
     /**
      * 根据分类id查询菜品
@@ -46,7 +46,7 @@ public class DishController {
     @GetMapping("/list")
     @ApiOperation("根据分类id查询菜品")
     public Result<List<DishVO>> list(Long categoryId) {
-        String key = DISH_PREFIX + categoryId;
+        String key = CATEGORY_PREFIX + DISH_PREFIX + categoryId;
         String json = stringRedisTemplate.opsForValue().get(key);
         if (StrUtil.isNotBlank(json)) {
             List<DishVO> dishVOList = JSONUtil.toList(json, DishVO.class);

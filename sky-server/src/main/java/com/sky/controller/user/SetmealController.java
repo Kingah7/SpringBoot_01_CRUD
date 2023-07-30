@@ -35,6 +35,7 @@ public class SetmealController {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
+
     /**
      * 条件查询
      *
@@ -44,7 +45,7 @@ public class SetmealController {
     @GetMapping("/list")
     @ApiOperation("根据分类id查询套餐")
     public Result<List<Setmeal>> list(Long categoryId) {
-        String key = CATEGORY + categoryId;
+        String key = CATEGORY_PREFIX + SETMEAL_PREFIX + categoryId;
         String json = stringRedisTemplate.opsForValue().get(key);
         if (StrUtil.isNotBlank(json)) {
             return Result.success(JSONUtil.toList(json, Setmeal.class));
@@ -69,7 +70,7 @@ public class SetmealController {
     @GetMapping("/dish/{id}")
     @ApiOperation("根据套餐id查询包含的菜品列表")
     public Result<List<DishItemVO>> dishList(@PathVariable("id") Long id) {
-        String key = SETMEAL + id;
+        String key = SETMEAL_PREFIX + id;
         String json = stringRedisTemplate.opsForValue().get(key);
         if (StrUtil.isNotBlank(json)) {
             return Result.success(JSONUtil.toList(json, DishItemVO.class));

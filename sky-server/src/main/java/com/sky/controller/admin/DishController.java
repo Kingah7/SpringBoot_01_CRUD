@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import static com.sky.constant.RedisKeyConstant.CATEGORY_PREFIX;
 import static com.sky.constant.RedisKeyConstant.DISH_PREFIX;
 
 @Slf4j
@@ -32,10 +34,13 @@ public class DishController {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
+    String key = CATEGORY_PREFIX + DISH_PREFIX + "*";
+
     @PostMapping
     @ApiOperation("新增菜品")
     public Result saveWithFlavor(@RequestBody DishDTO dishDTO) {
         dishService.saveWithFlavor(dishDTO);
+        deleteCache();
         return Result.success();
     }
 
@@ -59,12 +64,7 @@ public class DishController {
     @ApiOperation("删除菜品")
     public Result deleteDish(@RequestParam List<Long> ids) throws InterruptedException {
         dishService.deleteBatch(ids);
-
-        List<String> list = new ArrayList<>();
-        for (int i = 0; i < ids.size(); i++) {
-            list.add(DISH_PREFIX + ids.get(i).toString());
-        }
-        stringRedisTemplate.delete(list);
+        deleteCache();
         return Result.success();
     }
 
@@ -83,7 +83,7 @@ public class DishController {
     @ApiOperation("更新菜品")
     public Result update(@RequestBody DishDTO dishDTO) {
         dishService.updateWithFlavor(dishDTO);
-        stringRedisTemplate.delete(DISH_PREFIX + dishDTO.getId());
+        deleteCache();
         return Result.success();
     }
 
@@ -98,8 +98,13 @@ public class DishController {
     @ApiOperation("起售停售")
     public Result changeStatus(@PathVariable Long status, Long id) {
         dishService.changeStatus(status, id);
-        stringRedisTemplate.delete(DISH_PREFIX + id);
+        deleteCache();
         return Result.success();
+    }
+
+    private void deleteCache() {
+        Set<String> keys = stringRedisTemplate.keys(key);
+        stringRedisTemplate.delete(keys);
     }
 
 }
