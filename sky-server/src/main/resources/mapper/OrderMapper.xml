@@ -25,4 +25,17 @@
         </where>
         order by order_time
     </select>
+
+
+    <select id="queryTop10" resultType="com.sky.dto.GoodsSalesDTO">
+        SELECT od.name `name`, SUM(od.number) `number`
+        FROM `orders` o
+                 INNER JOIN `order_detail` od ON o.id = od.order_id
+        WHERE o.status = 5
+          AND o.order_time BETWEEN #{begin} AND #{end}
+        GROUP BY od.name
+        ORDER BY number DESC
+        LIMIT 10
+        OFFSET 0
+    </select>
 </mapper>
