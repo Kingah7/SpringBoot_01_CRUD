@@ -61,4 +61,8 @@ public class AddressBook implements Serializable {
 
     //是否默认 0否 1是
     private Integer isDefault;
+
+    public String getAddressBook() {
+        return provinceName + cityName + districtName + detail;
+    }
 }
