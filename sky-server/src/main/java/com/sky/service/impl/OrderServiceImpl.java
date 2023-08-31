@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
@@ -23,6 +24,7 @@ import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
 import com.sky.properties.WeChatProperties;
 import com.sky.result.PageResult;
+import com.sky.service.OrderDetailService;
 import com.sky.service.OrderService;
 import com.sky.service.UserService;
 import com.sky.utils.HttpClientUtil;
@@ -137,10 +139,22 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         return new PageResult(query.getTotal(), query.getResult());
     }
 
+    /**
+     * 管理端订单查询
+     *
+     * @param ordersPageQueryDTO
+     * @return
+     */
     @Override
     public PageResult queryPage(OrdersPageQueryDTO ordersPageQueryDTO) {
         PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
         Page<Orders> page = orderMapper.queryPage2(ordersPageQueryDTO);
+        for (Orders order : page.getResult()) {
+            Long orderId = order.getId();
+            List<OrderDetail> list = orderDetailMapper.selectList(new QueryWrapper<OrderDetail>().eq("order_id", orderId));
+            order.setOrderDetailList(list);
+        }
+
         return new PageResult(page.getTotal(), page.getResult());
     }
 
@@ -168,7 +182,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     public void orderCancel(OrdersCancelDTO ordersCancelDTO) {
         Long id = ordersCancelDTO.getId();
         update().set("status", CANCELLED)
-                .set("rejection_reason", ordersCancelDTO.getCancelReason())
+                .set("cancel_reason", ordersCancelDTO.getCancelReason())
+                .set("cancel_time", LocalDateTime.now())
                 .eq("id", id)
                 .update();
     }

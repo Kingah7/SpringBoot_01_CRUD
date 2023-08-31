@@ -56,7 +56,7 @@ public class OrderTask {
     /**
      * 处理取消订单
      */
-    @Scheduled(cron = EVERY_ONE_MINUTE)
+
     @Transactional
     public void processCancelOrder() {
         log.info("开始删除取消订单:{}", LocalDateTime.now());

@@ -5,10 +5,12 @@ import com.sky.dto.OrdersCancelDTO;
 import com.sky.dto.OrdersConfirmDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersRejectionDTO;
+import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.AddressBookService;
+import com.sky.service.OrderDetailService;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderStatisticsVO;
 import io.swagger.annotations.Api;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.sky.entity.Orders.*;
@@ -32,6 +35,9 @@ public class OrderController {
 
     @Resource
     private AddressBookService addressBookService;
+
+    @Resource
+    private OrderDetailService orderDetailService;
 
 
     @GetMapping("/conditionSearch")
@@ -63,6 +69,9 @@ public class OrderController {
     public Result queryOrderDetail(@PathVariable Long id) {
         log.info("查询订单详情:{}", id);
         Orders orders = orderService.query().eq("id", id).one();
+
+        List<OrderDetail> orderDetailList = orderDetailService.query().eq("order_id", id).list();
+        orders.setOrderDetailList(orderDetailList);
         return Result.success(orders);
     }
 
@@ -83,7 +92,11 @@ public class OrderController {
     @ApiOperation("接单")
     public Result orderConfirm(@RequestBody OrdersConfirmDTO ordersConfirmDTO) {
         log.info("接单:{}", ordersConfirmDTO);
-        orderService.update().set("status", CONFIRMED).eq("id", ordersConfirmDTO.getId()).update();
+        orderService.update()
+                .set("status", CONFIRMED)
+                .set("estimated_delivery_time", LocalDateTime.now().plusHours(1))
+                .eq("id", ordersConfirmDTO.getId())
+                .update();
         return Result.success();
     }
 
@@ -91,7 +104,10 @@ public class OrderController {
     @ApiOperation("完成订单")
     public Result completeOrder(@PathVariable Long id) {
         log.info("完成订单:{}", id);
-        orderService.update().set("status", Orders.COMPLETED).update();
+        orderService.update()
+                .set("status", Orders.COMPLETED)
+                .set("delivery_time", LocalDateTime.now())
+                .eq("id", id).update();
         return Result.success();
     }
 
@@ -101,6 +117,13 @@ public class OrderController {
         /**
          * 再来一单业务
          */
+        return Result.success();
+    }
+
+    @PutMapping("/delivery/{id}")
+    @ApiOperation("派单")
+    public Result delivery(@PathVariable Integer id) {
+        orderService.update().set("status", 4).eq("id", id).update();
         return Result.success();
     }
 }
